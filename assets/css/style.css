@@ -283,6 +283,20 @@
   gap: 10px;
 }
 
+.right-header-user a {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 10px;
+  text-decoration: none;
+  color: #000;
+  transition: all 0.3s ease-in-out;
+}
+
+.right-header-user a:hover {
+  color: #2563eb;
+}
+
 .right-header-user img {
   width: 45px;
   height: 45px;
