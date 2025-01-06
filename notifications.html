@@ -1,0 +1,105 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Notifications - TuniLearn</title>
+    <link rel="stylesheet" href="assets/css/global.css" />
+    <link rel="stylesheet" href="assets/css/notifications.css" />
+  </head>
+  <body>
+    <nav class="navbar">
+      <div class="nav-left">
+        <h1 class="logo">TuniLearn.</h1>
+        <div class="nav-links">
+          <a href="./home.html" class="nav-link">
+            <img src="assets/images/icons/home.svg" alt="Home" /> Home
+          </a>
+          <a href="course.html" class="nav-link">
+            <img src="assets/images/icons/Course.svg" alt="Courses" /> Courses
+          </a>
+        </div>
+      </div>
+      <div class="nav-right">
+        <a href="about.html">About us</a>
+        <a href="contact.html">Contact us</a>
+        <a href="./search.html">
+          <img
+            src="assets/images/icons/search.svg"
+            alt="Search"
+            class="nav-icon"
+          />
+        </a>
+        <a href="./notifications.html">
+          <img
+            src="assets/images/icons/notification.svg"
+            alt="Notifications"
+            class="nav-icon"
+          />
+        </a>
+        <a href="./profile.html">
+          <img src="assets/images/user.png" alt="Profile" class="profile-pic" />
+        </a>
+      </div>
+    </nav>
+
+    <main class="notifications-container">
+      <div class="notifications-header">
+        <h1>Notifications</h1>
+        <div class="notification-actions">
+          <button class="mark-all-read">Mark all as read</button>
+          <button class="clear-all">Clear all</button>
+        </div>
+      </div>
+
+      <div class="notifications-list">
+        <div class="notification-item unread">
+          <img
+            src="assets/images/icons/notification2.svg"
+            alt="Notification"
+            class="notification-icon"
+          />
+          <div class="notification-content">
+            <p class="notification-text">
+              <strong>New Course Available:</strong> Complete React.js course is
+              now live!
+            </p>
+            <span class="notification-time">2 hours ago</span>
+          </div>
+          <div class="notification-dot"></div>
+        </div>
+
+        <div class="notification-item unread">
+          <img
+            src="assets/images/icons/notification2.svg"
+            alt="Notification"
+            class="notification-icon"
+          />
+          <div class="notification-content">
+            <p class="notification-text">
+              <strong>Assignment Due:</strong> Week 1 JavaScript Assignment due
+              in 24 hours
+            </p>
+            <span class="notification-time">5 hours ago</span>
+          </div>
+          <div class="notification-dot"></div>
+        </div>
+
+        <div class="notification-item">
+          <img
+            src="assets/images/icons/notification2.svg"
+            alt="Notification"
+            class="notification-icon"
+          />
+          <div class="notification-content">
+            <p class="notification-text">
+              <strong>Course Progress:</strong> You've completed 75% of React
+              Basics!
+            </p>
+            <span class="notification-time">1 day ago</span>
+          </div>
+        </div>
+      </div>
+    </main>
+  </body>
+</html>
