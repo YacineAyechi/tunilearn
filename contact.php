@@ -1,44 +1,48 @@
+<?php
+session_start();
+require_once 'config/connection.php';
+
+// Require login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit();
+}
+
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Contact Us - TuniLearn</title>
-    <link rel="stylesheet" href="assets/css/global.css" />
-    <link rel="stylesheet" href="assets/css/contact.css" />
+    <link rel="stylesheet" href="./assets/css/global.css" />
+    <link rel="stylesheet" href="./assets/css/contact.css" />
   </head>
   <body>
     <nav class="navbar">
       <div class="nav-left">
         <h1 class="logo">TuniLearn.</h1>
         <div class="nav-links">
-          <a href="./home.html" class="nav-link">
+          <a href="./home.php" class="nav-link">
             <img src="assets/images/icons/home.svg" alt="Home" /> Home
           </a>
-          <a href="course.html" class="nav-link">
+          <a href="./courses.php" class="nav-link">
             <img src="assets/images/icons/Course.svg" alt="Courses" /> Courses
           </a>
         </div>
       </div>
       <div class="nav-right">
-        <a href="about.html">About us</a>
-        <a href="contact.html">Contact us</a>
-        <a href="./search.html">
+        <a href="./contact.php">Contact us</a>
+        <a href="./search.php">
           <img
             src="assets/images/icons/search.svg"
             alt="Search"
             class="nav-icon"
           />
         </a>
-        <a href="./notifications.html">
-          <img
-            src="assets/images/icons/notification.svg"
-            alt="Notifications"
-            class="nav-icon"
-          />
-        </a>
-        <a href="./profile.html">
-          <img src="assets/images/user.png" alt="Profile" class="profile-pic" />
+        <a href="./profile.php">
+          <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile" class="profile-pic" />
         </a>
       </div>
     </nav>

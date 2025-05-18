@@ -1,43 +1,53 @@
+<?php
+session_start();
+require_once 'config/connection.php';
+
+// Require login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit();
+}
+
+// Fetch user data
+$user_id = $_SESSION['user_id'];
+$user_query = "SELECT * FROM users WHERE user_id = $user_id";
+$user_result = mysqli_query($connexion, $user_query);
+$user = mysqli_fetch_assoc($user_result);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Profile - TuniLearn</title>
-    <link rel="stylesheet" href="assets/css/global.css" />
-    <link rel="stylesheet" href="assets/css/profile.css" />
+    <link rel="stylesheet" href="./assets/css/global.css" />
+    <link rel="stylesheet" href="./assets/css/profile.css" />
   </head>
   <body>
     <nav class="navbar">
       <div class="nav-left">
         <h1 class="logo">TuniLearn.</h1>
         <div class="nav-links">
-          <a href="./home.html" class="nav-link">
+          <a href="./home.php" class="nav-link">
             <img src="assets/images/icons/home.svg" alt="Home" /> Home
           </a>
-          <a href="course.html" class="nav-link">
+          <a href="./courses.php" class="nav-link">
             <img src="assets/images/icons/Course.svg" alt="Courses" />
             Courses
           </a>
         </div>
       </div>
       <div class="nav-right">
-        <a href="about.html">About us</a>
-        <a href="contact.html">Contact us</a>
-        <a href="./search.html"
+        <a href="./contact.php">Contact us</a>
+        <a href="./search.php"
           ><img
             src="assets/images/icons/search.svg"
             alt="Search"
             class="nav-icon"
         /></a>
-        <a href="./notifications.html">
-          <img
-            src="assets/images/icons/notification.svg"
-            alt="Notifications"
-            class="nav-icon"
-        /></a>
-        <a href="./profile.html">
-          <img src="assets/images/user.png" alt="Profile" class="profile-pic" />
+        <a href="./profile.php">
+          <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="Profile" class="profile-pic" />
         </a>
       </div>
     </nav>
@@ -46,23 +56,23 @@
       <div class="profile-header">
         <div class="profile-info">
           <img
-            src="assets/images/user2.png"
-            alt="John Doe"
+            src="<?php echo htmlspecialchars($user['profile_image']); ?>"
+            alt="<?php echo htmlspecialchars($user['name']); ?>"
             class="profile-image"
           />
           <div class="profile-details">
-            <h2>John Doe</h2>
-            <p><span class="badge">Student</span> johndoe@gmail.com</p>
+            <h2><?php echo htmlspecialchars($user['name']); ?></h2>
+            <p><span class="badge"><?php echo ucfirst(htmlspecialchars($user['role'])); ?></span> <?php echo htmlspecialchars($user['email']); ?></p>
           </div>
         </div>
         <div class="profile-meta">
           <div class="meta-item">
             <h3>Involvements</h3>
-            <p>Student at ESB</p>
+            <p><?php echo htmlspecialchars($user['involvements']); ?></p>
           </div>
           <div class="meta-item">
             <h3>Specialisation</h3>
-            <p>LBC Student</p>
+            <p><?php echo htmlspecialchars($user['specialisation']); ?></p>
           </div>
         </div>
       </div>
@@ -98,26 +108,31 @@
 
       <div class="profile-about">
         <h3>About</h3>
-        <p>
-          Lorem ipsum is Simply Dummy Text Of The Printing And Typesetting
-          Industry. Lorem Ipsum Has Been The Industry's Standard Dummy Text Ever
-          Since The 1500s, When An Unknown Printer Took A Galley Of Type And
-          Scrambled It To Make A Type Specimen Book. It Has Survived Not Only
-          Five Centuries, But Also The Leap Into Electronic Typesetting,
-          Remaining Essentially Unchanged. It Was Popularised In The 1960s With
-          The Release Of Letraset Sheets Containing Lorem Ipsum Passages, And
-          More Recently With Desktop Publishing Software Like Aldus PageMaker
-          Including Versions Of Lorem Ipsum.
-        </p>
+        <?php if (!empty($user['bio'])): ?>
+          <p><?php echo nl2br(htmlspecialchars($user['bio'])); ?></p>
+        <?php else: ?>
+          <p class="empty-bio">
+            No bio added yet. 
+            <a href="./settings.php" style="color: #2563eb; text-decoration: none;">
+              Add your bio in settings
+            </a>
+          </p>
+        <?php endif; ?>
       </div>
 
       <div class="profile-skills">
         <h3>Skills</h3>
         <div class="skills-list">
-          <span class="skill-badge">Figma</span>
-          <span class="skill-badge">JavaScript</span>
-          <span class="skill-badge">Adobe XD</span>
-          <span class="skill-badge">React Js</span>
+          <?php 
+          if (!empty($user['skills'])) {
+            $skills = explode(',', $user['skills']);
+            foreach($skills as $skill) {
+              echo '<span class="skill-badge">' . htmlspecialchars($skill) . '</span>';
+            }
+          } else {
+            echo '<p>No skills added yet. <a href="./settings.php" style="color: #2563eb; text-decoration: none;">Add your skills in settings</a></p>';
+          }
+          ?>
         </div>
       </div>
     </main>

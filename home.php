@@ -1,18 +1,58 @@
+<?php
+session_start();
+require_once 'config/connection.php';
+
+// Require login
+if (!isset($_SESSION['user_id'])) {
+    header('Location: index.php');
+    exit();
+}
+
+// Get user data
+$user_id = $_SESSION['user_id'];
+$user_query = "SELECT * FROM users WHERE user_id = $user_id";
+$user_result = mysqli_query($connexion, $user_query);
+$user = mysqli_fetch_assoc($user_result);
+
+// Get courses in progress count
+$in_progress_query = "SELECT COUNT(*) as count FROM student_enrollments WHERE student_id = $user_id";
+$in_progress_result = mysqli_query($connexion, $in_progress_query);
+$in_progress = mysqli_fetch_assoc($in_progress_result)['count'];
+
+// Get completed courses count (assuming completion is tracked in student_completed_quizzes)
+$completed_query = "SELECT COUNT(DISTINCT c.course_id) as count 
+                   FROM student_completed_quizzes scq 
+                   JOIN quizzes q ON scq.quiz_id = q.quiz_id 
+                   JOIN courses c ON q.course_id = c.course_id 
+                   WHERE scq.student_id = $user_id";
+$completed_result = mysqli_query($connexion, $completed_query);
+$completed = mysqli_fetch_assoc($completed_result)['count'];
+
+// Get recent courses
+$recent_courses_query = "SELECT c.*, u.name as instructor_name 
+                        FROM courses c 
+                        JOIN users u ON c.instructor_id = u.user_id 
+                        JOIN student_enrollments se ON c.course_id = se.course_id 
+                        WHERE se.student_id = $user_id 
+                        ORDER BY c.course_id DESC LIMIT 4";
+$recent_courses_result = mysqli_query($connexion, $recent_courses_query);
+?>
+
 <!DOCTYPE html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>TuniLearn</title>
-    <link rel="stylesheet" href="assets/css/global.css" />
-    <link rel="stylesheet" href="assets/css/style.css" />
+    <link rel="stylesheet" href="./assets/css/global.css" />
+    <link rel="stylesheet" href="./assets/css/style.css" />
   </head>
   <body>
     <div class="dashboardContainer">
       <div class="sidebar">
         <h1 class="logo">TuniLearn.</h1>
         <div class="sidebar-links">
-          <a href="home.html" class="sidebar-link">
+          <a href="./home.php" class="sidebar-link">
             <img
               src="assets/images/icons/home.svg"
               class="icon"
@@ -20,23 +60,19 @@
             />
             <p>Dashboard</p>
           </a>
-          <a href="course.html" class="sidebar-link">
+          <a href="./courses.php" class="sidebar-link">
             <img src="assets/images/icons/Course.svg" alt="Dashboard" />
             <p>Courses</p>
           </a>
-          <a href="notifications.html" class="sidebar-link">
-            <img
-              src="assets/images/icons/presention-chart.svg"
-              alt="Dashboard"
-            />
-            <p>Notifications</p>
+          <?php if ($user['role'] === 'instructor' || $user['role'] === 'admin'): ?>
+          <a href="./add_course.php" class="sidebar-link">
+            <img src="assets/images/icons/add.svg" alt="Add Course" />
+            <p>Add Course</p>
           </a>
-          <a href="search.html" class="sidebar-link">
-            <img src="assets/images/icons/search.svg" alt="Dashboard" />
-            <p>Search</p>
-          </a>
+          <?php endif; ?>
+          
 
-          <a href="settings.html" class="sidebar-link">
+          <a href="./settings.php" class="sidebar-link">
             <img src="assets/images/icons/setting.svg" alt="Dashboard" />
             <p>Settings</p>
           </a>
@@ -47,14 +83,15 @@
           <p>Explore 100+ expert created courses prepared for you.</p>
           <button>Get Access</button>
         </div>
+        
       </div>
       <div class="main">
         <div class="main-header">
           <div class="main-header-left">
-            <h2>Hi John, Good Afternoon!</h2>
+            <h2>Hi <?php echo htmlspecialchars($user['name']); ?>, Good <?php echo date('H') < 12 ? 'Morning' : (date('H') < 17 ? 'Afternoon' : 'Evening'); ?>!</h2>
             <p>Lets learn something new today</p>
           </div>
-          <form class="search-bar" id="searchForm" action="search.html">
+          <form class="search-bar" id="searchForm" action="search.php">
             <input
               type="text"
               placeholder="Search"
@@ -89,11 +126,11 @@
             <div class="main-content-overview">
               <div>
                 <p>Course in progress</p>
-                <h2>56</h2>
+                <h2><?php echo $in_progress; ?></h2>
               </div>
               <div>
                 <p>Course completed</p>
-                <h2>36</h2>
+                <h2><?php echo $completed; ?></h2>
               </div>
               <div>
                 <p>Chats & Discussions</p>
@@ -108,96 +145,45 @@
               <a href="#">View All</a>
             </div>
             <div class="main-content-courses">
+              <?php while($course = mysqli_fetch_assoc($recent_courses_result)): ?>
               <div class="main-content-courses-card">
                 <div>
-                  <img src="assets/images/course1.png" alt="Course 1" />
+                  <img src="assets/images/course1.png" alt="<?php echo htmlspecialchars($course['title']); ?>" />
                 </div>
                 <div class="main-content-courses-card-info">
                   <div class="course-category">
                     <p>Web Development</p>
                   </div>
                   <div class="course-title">
-                    <p>Swift Course</p>
+                    <p><?php echo htmlspecialchars($course['title']); ?></p>
                   </div>
                   <div class="course-author">
-                    <p>John Doe</p>
+                    <p><?php echo htmlspecialchars($course['instructor_name']); ?></p>
                     <div class="circle"></div>
                     <p>5hrs</p>
                   </div>
                 </div>
               </div>
-              <div class="main-content-courses-card">
-                <div>
-                  <img src="assets/images/course1.png" alt="Course 1" />
-                </div>
-                <div class="main-content-courses-card-info">
-                  <div class="course-category">
-                    <p>Web Development</p>
-                  </div>
-                  <div class="course-title">
-                    <p>Swift Course</p>
-                  </div>
-                  <div class="course-author">
-                    <p>John Doe</p>
-                    <div class="circle"></div>
-                    <p>5hrs</p>
-                  </div>
-                </div>
-              </div>
-              <div class="main-content-courses-card">
-                <div>
-                  <img src="assets/images/course1.png" alt="Course 1" />
-                </div>
-                <div class="main-content-courses-card-info">
-                  <div class="course-category">
-                    <p>Web Development</p>
-                  </div>
-                  <div class="course-title">
-                    <p>Swift Course</p>
-                  </div>
-                  <div class="course-author">
-                    <p>John Doe</p>
-                    <div class="circle"></div>
-                    <p>5hrs</p>
-                  </div>
-                </div>
-              </div>
-              <div class="main-content-courses-card">
-                <div>
-                  <img src="assets/images/course1.png" alt="Course 1" />
-                </div>
-                <div class="main-content-courses-card-info">
-                  <div class="course-category">
-                    <p>Web Development</p>
-                  </div>
-                  <div class="course-title">
-                    <p>Swift Course</p>
-                  </div>
-                  <div class="course-author">
-                    <p>John Doe</p>
-                    <div class="circle"></div>
-                    <p>5hrs</p>
-                  </div>
-                </div>
-              </div>
+              <?php endwhile; ?>
             </div>
           </div>
         </div>
       </div>
       <div class="right">
         <div class="right-header">
-          <a href="notifications.html">
+          <a href="./logout.php">
             <div class="right-header-notification">
               <img
-                src="assets/images/icons/notification2.svg"
+                src="assets/images/icons/logout.svg"
                 alt="Notification"
               />
             </div>
+            
           </a>
-          <div href="/profile.html" class="right-header-user">
-            <a href="/profile.html">
-              <img src="assets/images/user.png" alt="User" />
-              <p>John Doe</p>
+          <div href="./profile.php" class="right-header-user">
+            <a href="./profile.php">
+              <img src="<?php echo htmlspecialchars($user['profile_image']); ?>" alt="User" />
+              <p><?php echo htmlspecialchars($user['name']); ?></p>
             </a>
           </div>
         </div>
@@ -355,7 +341,7 @@
           e.preventDefault();
           const searchInput = searchForm.querySelector(".search-input");
           if (searchInput.value.trim()) {
-            window.location.href = `search.html?q=${encodeURIComponent(
+            window.location.href = `search.php?q=${encodeURIComponent(
               searchInput.value.trim()
             )}`;
           }
@@ -365,7 +351,7 @@
         searchIcon.addEventListener("click", () => {
           const searchInput = searchForm.querySelector(".search-input");
           if (searchInput.value.trim()) {
-            window.location.href = `search.html?q=${encodeURIComponent(
+            window.location.href = `search.php?q=${encodeURIComponent(
               searchInput.value.trim()
             )}`;
           }
